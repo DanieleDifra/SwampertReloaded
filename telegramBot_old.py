@@ -16,13 +16,20 @@ GPIO.setup(11, GPIO.OUT)
 updater = Updater(token="5434499546:AAE6TfxPDbKsX4ajVIFFcqWQUmIf3RpOt4Q")
 dispatcher = updater.dispatcher
 
+randomPeopleText = "Random Person"
+randomImageText = "Random Image"
 ledOn = "LED on"
 ledOff = "LED off"
+randomPeopleUrl = "https://thispersondoesnotexist.com/image"
+randomPImageUrl = "https://picsum.photos/1200"
+
+likes = 0
+dislikes = 0
 
 allowedUsernames = ["DanieleDifra"]
 
 def startCommand(update: Update, context: CallbackContext):
-    buttons = [[KeyboardButton(ledOn)], [KeyboardButton(ledOff)]]
+    buttons = [[KeyboardButton(ledOn)], [KeyboardButton(ledOff)], [KeyboardButton(randomImageText)], [KeyboardButton(randomPeopleText)]]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to my bot!", reply_markup=ReplyKeyboardMarkup(buttons))
 
 def messageHandler(update: Update, context: CallbackContext):
@@ -31,10 +38,8 @@ def messageHandler(update: Update, context: CallbackContext):
         return
     if ledOn in update.message.text:
         GPIO.output(11,True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text="LED turned on", reply_markup=ReplyKeyboardMarkup(buttons))
     if ledOff in update.message.text:
         GPIO.output(11, False)
-        context.bot.send_message(chat_id=update.effective_chat.id, text="LED turned off", reply_markup=ReplyKeyboardMarkup(buttons))
     if randomPeopleText in update.message.text:
         image = get(randomPeopleUrl).content
     if randomImageText in update.message.text:
@@ -46,7 +51,23 @@ def messageHandler(update: Update, context: CallbackContext):
         buttons = [[InlineKeyboardButton("👍", callback_data="like")], [InlineKeyboardButton("👎", callback_data="dislike")]]
         context.bot.send_message(chat_id=update.effective_chat.id, reply_markup=InlineKeyboardMarkup(buttons), text="Did you like the image?")
 
+def queryHandler(update: Update, context: CallbackContext):
+    query = update.callback_query.data
+    update.callback_query.answer()
+
+    global likes, dislikes
+
+    if "like" in query:
+        likes +=1
+    
+    if "dislike" in query:
+        dislikes +=1
+
+    print(f"likes => {likes} and dislikes => {dislikes}")
+
+
 dispatcher.add_handler(CommandHandler("start", startCommand))
 dispatcher.add_handler(MessageHandler(Filters.text, messageHandler))
+dispatcher.add_handler(CallbackQueryHandler(queryHandler))
 
 updater.start_polling()
