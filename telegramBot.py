@@ -63,5 +63,6 @@ updater.start_polling()
 def getWeather():
     weather_url = "http://dataservice.accuweather.com/currentconditions/v1/214046?apikey=GoxexX06khkOOTkiUFNfFB0Lh0tnAo1"
     response = requests.get(url)
-    return response = json.loads(response)
+    json_response = json.loads(response)
+    return json_response
      
