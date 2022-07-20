@@ -23,12 +23,12 @@ dispatcher = updater.dispatcher
 
 pot11 = "Water pot 11"
 pot16 = "Water pot 16"
-weather = "Weather"
+weatherButton = "Weather"
 
 allowedUsernames = ["DanieleDifra"]
 
 def startCommand(update: Update, context: CallbackContext):
-    buttons = [[KeyboardButton(pot11)], [KeyboardButton(pot16)], [KeyboardButton(weather)]]
+    buttons = [[KeyboardButton(pot11)], [KeyboardButton(pot16)], [KeyboardButton(weatherButton)]]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to my bot!", reply_markup=ReplyKeyboardMarkup(buttons))
 
 def messageHandler(update: Update, context: CallbackContext):
@@ -50,7 +50,7 @@ def messageHandler(update: Update, context: CallbackContext):
         GPIO.output(16,False)
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done")
 
-    if weather in update.message.text:
+    if weatherButton in update.message.text:
         weather = getWeather()
         msg = "The weather today in Milan is " + weather[0]["WeatherText"] + "!\nThere are " + weather[0]["Temperature"]["Metric"]["Value"] + " degrees"
         context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
