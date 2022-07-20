@@ -44,6 +44,7 @@ def messageHandler(update: Update, context: CallbackContext):
         waterButtons=[[KeyboardButton(back)], [KeyboardButton(pot11)], [KeyboardButton(pot16)]]
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sure! Wich pot do you want to water?", reply_markup=ReplyKeyboardMarkup(waterButtons))
 
+    ## TO DO
     if back in update.message.text:
        startCommand(Update,CallbackContext)    
 
@@ -79,4 +80,3 @@ def getWeather():
        return json_response
     else:
        return exception
-     
