@@ -11,8 +11,8 @@ import RPi.GPIO as GPIO
 # to use Raspberry Pi board pin numbers
 GPIO.setmode(GPIO.BOARD)
 # set up GPIO output channel
-GPIO.setup(11, GPIO.OUT)
-GPIO.setup(16, GPIO.OUT)
+GPIO.setup(11, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
 
 updater = Updater(token="5434499546:AAE6TfxPDbKsX4ajVIFFcqWQUmIf3RpOt4Q")
 dispatcher = updater.dispatcher
