@@ -60,7 +60,7 @@ dispatcher.add_handler(MessageHandler(Filters.text, messageHandler))
 
 updater.start_polling()
 
-def getWeather()
+def getWeather():
     weather_url = "http://dataservice.accuweather.com/currentconditions/v1/214046?apikey=GoxexX06khkOOTkiUFNfFB0Lh0tnAo1"
     response = requests.get(url)
     return response = json.loads(response)
