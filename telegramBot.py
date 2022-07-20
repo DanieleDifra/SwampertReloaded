@@ -1,3 +1,4 @@
+from logging import exception
 from telegram import *
 from telegram.ext import * 
 from requests import *
@@ -53,7 +54,7 @@ def messageHandler(update: Update, context: CallbackContext):
 
     if weatherButton in update.message.text:
         weather = getWeather()
-        msg = "The weather today in Milan is " + weather[0]["WeatherText"] + "!\nThere are " + weather[0]["Temperature"]["Metric"]["Value"] + " degrees"
+        msg = "The weather today in Milan is " + weather[0]['WeatherText'] + "!\nThere are " + weather[0]['Temperature']['Metric']['Value'] + " degrees"
         context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 dispatcher.add_handler(CommandHandler("start", startCommand))
@@ -62,8 +63,11 @@ dispatcher.add_handler(MessageHandler(Filters.text, messageHandler))
 updater.start_polling()
 
 def getWeather():
-    weather_url = "http://dataservice.accuweather.com/currentconditions/v1/214046?apikey=GoxexX06khkOOTkiUFNfFB0Lh0tnAo1"
+    weather_url = "http://dataservice.accuweather.com/currentconditions/v1/214046?apikey=GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
     response = requests.get(weather_url)
-    json_response = json.loads(response)
-    return json_response
+    if response.status_code == 200:
+       json_response = json.loads(response.text)
+       return json_response
+    else:
+       return exception
      
