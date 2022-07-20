@@ -23,21 +23,26 @@ GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
 updater = Updater(token="5434499546:AAE6TfxPDbKsX4ajVIFFcqWQUmIf3RpOt4Q")
 dispatcher = updater.dispatcher
 
-pot11 = "Water pot 11"
-pot16 = "Water pot 16"
+water = "Let's water some pots!"
 weatherButton = "Weather"
+pot11 = "Pot 11"
+pot16 = "Pot 16"
 
 allowedUsernames = ["DanieleDifra"]
 
 def startCommand(update: Update, context: CallbackContext):
-    buttons = [[KeyboardButton(pot11)], [KeyboardButton(pot16)], [KeyboardButton(weatherButton)]]
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to my bot!", reply_markup=ReplyKeyboardMarkup(buttons))
+    startButtons = [[KeyboardButton(water)], [KeyboardButton(weatherButton)]]
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to my bot!", reply_markup=ReplyKeyboardMarkup(startButtons))
 
 def messageHandler(update: Update, context: CallbackContext):
     if update.effective_chat.username not in allowedUsernames:
         context.bot.send_message(chat_id=update.effective_chat.id, text="You are not allowed to use this bot")
         return
 
+    if water in update.message.text:
+        waterButtons=[[KeyboardButton(pot11)], [KeyboardButton(pot16)]]
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sure! Wich pot do you want to water?", reply_markup=ReplyKeyboardMarkup(waterButtons))
+        
     if pot11 in update.message.text:
         GPIO.output(11,True)
         context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 11")
