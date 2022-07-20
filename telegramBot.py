@@ -32,14 +32,14 @@ def messageHandler(update: Update, context: CallbackContext):
         return
     if pot11 in update.message.text:
         GPIO.output(11,True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 11", reply_markup=ReplyKeyboardMarkup(buttons))
+        #context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 11", reply_markup=ReplyKeyboardMarkup(buttons))
         time.sleep(5)
         GPIO.output(11,False)
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done", reply_markup=ReplyKeyboardMarkup(buttons))
         
     if pot16 in update.message.text:
         GPIO.output(16,True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 16", reply_markup=ReplyKeyboardMarkup(buttons))
+        #context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 16", reply_markup=ReplyKeyboardMarkup(buttons))
         time.sleep(5)
         GPIO.output(16,False)
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done", reply_markup=ReplyKeyboardMarkup(buttons))
