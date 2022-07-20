@@ -43,7 +43,7 @@ def messageHandler(update: Update, context: CallbackContext):
         GPIO.output(11,False)
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done")
         
-    if pot16 in update.message.text:parser
+    if pot16 in update.message.text:
         GPIO.output(16,True)
         context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 16")
         time.sleep(5)
