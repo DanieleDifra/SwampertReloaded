@@ -65,7 +65,9 @@ def messageHandler(update: Update, context: CallbackContext):
 
     if water in update.message.text:
         waterButtons=[[KeyboardButton(back)], [KeyboardButton(pot11)], [KeyboardButton(pot16)]]
-        waterText="Sure! Which pot do you want to water?\nLast time pot 11 was watered: " + str(lastPot11) + "\nLast time pot 16 was watered: " + str(lastPot16)
+        formatPot11 = datetime.strptime(lastPot11, "%Y/%m/%d %H:%M:%S")
+        formatPot16 = datetime.strptime(lastPot16, "%Y/%m/%d %H:%M:%S")
+        waterText="Sure! Which pot do you want to water?\nLast time pot 11 was watered: " + formatPot11 + "\nLast time pot 16 was watered: " + formatPot16
         context.bot.send_message(chat_id=update.effective_chat.id, text=waterText, reply_markup=ReplyKeyboardMarkup(waterButtons))
 
     ## TO DO
