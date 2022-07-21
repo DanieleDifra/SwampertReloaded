@@ -45,8 +45,8 @@ pot11 = "Pot 11"
 pot16 = "Pot 16"
 back = "Back"
 
-lastPot11 = datetime.date
-lastPot16 = datetime.date
+lastPot11 = datetime.now()
+lastPot16 = datetime.now()
 allowedUsernames = ["DanieleDifra"]
 
 def startCommand(update: Update, context: CallbackContext):
@@ -71,7 +71,7 @@ def messageHandler(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 11")
         time.sleep(5)
         GPIO.output(11,False)
-        lastPot11 = datetime.now
+        lastPot11 = datetime.now()
         mqttPublish()
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done")
         
@@ -80,7 +80,7 @@ def messageHandler(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 16")
         time.sleep(5)
         GPIO.output(16,False)
-        lastPot16 = datetime.now
+        lastPot16 = datetime.now()
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done")
 
     if weatherButton in update.message.text:
