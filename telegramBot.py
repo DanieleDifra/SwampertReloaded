@@ -55,7 +55,7 @@ def startCommand(update: Update, context: CallbackContext):
     startButtons = [[KeyboardButton(water)], [KeyboardButton(weatherButton)]]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to my bot!", reply_markup=ReplyKeyboardMarkup(startButtons))
 
-def messageHandler(update: Update, context: CallbackContext, lastPot11: lastPot11, lastPot16: lastPot16):
+def messageHandler(update: Update, context: CallbackContext, lastPot11, lastPot16):
     if update.effective_chat.username not in allowedUsernames:
         context.bot.send_message(chat_id=update.effective_chat.id, text="You are not allowed to use this bot")
         return
@@ -92,7 +92,7 @@ def messageHandler(update: Update, context: CallbackContext, lastPot11: lastPot1
         context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 dispatcher.add_handler(CommandHandler("start", startCommand))
-dispatcher.add_handler(MessageHandler(Filters.text, messageHandler))
+dispatcher.add_handler(MessageHandler(Filters.text, messageHandler, lastPot11, lastPot16))
 
 updater.start_polling()
 
