@@ -55,14 +55,14 @@ def startCommand(update: Update, context: CallbackContext):
     startButtons = [[KeyboardButton(water)], [KeyboardButton(weatherButton)]]
     context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to my bot!", reply_markup=ReplyKeyboardMarkup(startButtons))
 
-def messageHandler(update: Update, context: CallbackContext):
+def messageHandler(update: Update, context: CallbackContext, lastPot11: lastPot11, lastPot16: lastPot16):
     if update.effective_chat.username not in allowedUsernames:
         context.bot.send_message(chat_id=update.effective_chat.id, text="You are not allowed to use this bot")
         return
 
     if water in update.message.text:
         waterButtons=[[KeyboardButton(back)], [KeyboardButton(pot11)], [KeyboardButton(pot16)]]
-        waterText="Sure! Wich pot do you want to water?\nLast time pot 11 was watered: " + str(lastPot11) + "\nLast time pot 16 was watered: " + str(lastPot16)
+        waterText="Sure! Which pot do you want to water?\nLast time pot 11 was watered: " + str(lastPot11) + "\nLast time pot 16 was watered: " + str(lastPot16)
         context.bot.send_message(chat_id=update.effective_chat.id, text=waterText, reply_markup=ReplyKeyboardMarkup(waterButtons))
 
     ## TO DO
