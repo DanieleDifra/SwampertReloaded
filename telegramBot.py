@@ -93,7 +93,7 @@ def messageHandler(update: Update, context: CallbackContext):
 
     if weatherButton in update.message.text:
         weather = getWeather()
-        msg = "The weather today in Milan is " + weather[0]['WeatherText'] + "!\nThere are " + str(weather[0]['Temperature']['Metric']['Value']) + " degrees"
+        msg = "The weather today in Milan is " + weather[0]['WeatherText'] + "!\nIt is " + str(weather[0]['Temperature']['Metric']['Value']) + " degrees"
         context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 dispatcher.add_handler(CommandHandler("start", startCommand))
