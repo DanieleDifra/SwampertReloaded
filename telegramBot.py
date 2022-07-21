@@ -103,7 +103,5 @@ def mqttPublish():
     try:
         print ("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
         publish.single(topic, payload, hostname=mqtt_host, transport=t_transport, port=t_port, client_id=mqtt_client_ID, auth={'username':mqtt_username,'password':mqtt_password})
-    except (keyboardInterrupt)
-        break
     except Exception as e:
         print (e) 
