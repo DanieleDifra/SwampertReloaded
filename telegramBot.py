@@ -45,6 +45,8 @@ pot11 = "Pot 11"
 pot16 = "Pot 16"
 back = "Back"
 
+lastPot11 = datetime.date
+lastPot16 = datetime.date
 allowedUsernames = ["DanieleDifra"]
 
 def startCommand(update: Update, context: CallbackContext):
@@ -58,7 +60,7 @@ def messageHandler(update: Update, context: CallbackContext):
 
     if water in update.message.text:
         waterButtons=[[KeyboardButton(back)], [KeyboardButton(pot11)], [KeyboardButton(pot16)]]
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Sure! Wich pot do you want to water?", reply_markup=ReplyKeyboardMarkup(waterButtons))
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sure! Wich pot do you want to water?\nLast time pot 11 was watered: " + lastPot11 + "\nLast time pot 16 was watered: " + lastPot16, reply_markup=ReplyKeyboardMarkup(waterButtons))
 
     ## TO DO
     if back in update.message.text:
@@ -69,6 +71,7 @@ def messageHandler(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 11")
         time.sleep(5)
         GPIO.output(11,False)
+        lastPot11 = datetime.now
         mqttPublish()
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done")
         
@@ -77,6 +80,7 @@ def messageHandler(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 16")
         time.sleep(5)
         GPIO.output(16,False)
+        lastPot16 = datetime.now
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done")
 
     if weatherButton in update.message.text:
