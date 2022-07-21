@@ -11,12 +11,28 @@ import datetime
 import telepot
 import RPi.GPIO as GPIO
 
+import paho.mqtt.publish as publish
+import psutil
+import string
+
+## ThingSpeak Channel connection
+channel_ID = "1806671"
+mqtt_host = "mqtt3.thingspeak.com"
+
+# Your MQTT credentials for the device
+mqtt_client_ID = "ITgGHjUoFwwZEDIUPCgIJS8"
+mqtt_username  = "ITgGHjUoFwwZEDIUPCgIJS8"
+mqtt_password  = "51bdD9cJODXzePgbKtaNFKQk"
+t_transport = "websockets"
+t_port = 80
+topic = "channels/" + channel_ID + "/publish"
+
+## AccuWeather API connection
 accuKey = "GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
 cityKey = "214046"
 
-# to use Raspberry Pi board pin numbers
+## Raspberry Pi setup
 GPIO.setmode(GPIO.BOARD)
-# set up GPIO output channel
 GPIO.setup(11, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
 
@@ -53,6 +69,7 @@ def messageHandler(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Watering pot 11")
         time.sleep(5)
         GPIO.output(11,False)
+        mqttPublish()
         context.bot.send_message(chat_id=update.effective_chat.id, text="Done")
         
     if pot16 in update.message.text:
@@ -80,3 +97,13 @@ def getWeather():
        return json_response
     else:
        return exception
+
+def mqttPublish():
+    payload = "field1=1"
+    try:
+        print ("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
+        publish.single(topic, payload, hostname=mqtt_host, transport=t_transport, port=t_port, client_id=mqtt_client_ID, auth={'username':mqtt_username,'password':mqtt_password})
+    except (keyboardInterrupt)
+        break
+    except Exception as e:
+        print (e) 
