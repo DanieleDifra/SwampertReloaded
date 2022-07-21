@@ -1,3 +1,6 @@
+from datetime import datetime
+import time
+
 from logging import exception
 from telegram import *
 from telegram.ext import * 
@@ -5,7 +8,6 @@ from requests import *
 import requests
 import json
 import sys
-import time
 import random
 import datetime
 import telepot
