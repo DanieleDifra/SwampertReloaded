@@ -20,8 +20,6 @@ import string
 ## ThingSpeak Channel connection
 channel_ID = "1806671"
 mqtt_host = "mqtt3.thingspeak.com"
-
-# Your MQTT credentials for the device
 mqtt_client_ID = "ITgGHjUoFwwZEDIUPCgIJS8"
 mqtt_username  = "ITgGHjUoFwwZEDIUPCgIJS8"
 mqtt_password  = "51bdD9cJODXzePgbKtaNFKQk"
