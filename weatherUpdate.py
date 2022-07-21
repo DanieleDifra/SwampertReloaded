@@ -7,6 +7,7 @@ import requests
 import sys
 import random
 import telepot
+import json
 
 ## ThingSpeak Channel connection
 channel_ID = "1806671"
