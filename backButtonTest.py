@@ -183,6 +183,9 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 # Second level conversation callbacks
 async def select_pot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Choose the pot to water"""
+
+    context.user_data[CURRENT_LEVEL] = SELF
+
     text = "Choose the pot to water, or choose to water all the pots together"
     buttons = [
         [
@@ -198,9 +201,11 @@ async def select_pot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     ]
     keyboard = InlineKeyboardMarkup(buttons)
 
+    user_data = context.user_data
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
-
+    user_data[START_OVER] = True
+    
     return SELECTING_LEVEL
 
 async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
