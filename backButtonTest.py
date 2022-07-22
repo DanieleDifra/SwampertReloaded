@@ -321,7 +321,7 @@ def main() -> None:
     application = Application.builder().token("5434499546:AAE6TfxPDbKsX4ajVIFFcqWQUmIf3RpOt4Q").build()
 
     # Set up second level ConversationHandler (adding a person)
-    add_member_conv = ConversationHandler(
+    pot_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(select_pot, pattern="^" + str(WATER_POTS) + "$")],
         states={
             SELECTING_LEVEL: [
@@ -332,7 +332,6 @@ def main() -> None:
             ]
         },
         fallbacks=[
-            CallbackQueryHandler(weather, pattern="^" + str(INFO) + "$"),
             CallbackQueryHandler(end_second_level, pattern="^" + str(END) + "$"),
             CommandHandler("stop", stop_nested),
         ],
@@ -348,6 +347,7 @@ def main() -> None:
 
     # Set up top level ConversationHandler (selecting action)
     selection_handlers = [
+        pot_conv,
         CallbackQueryHandler(info, pattern="^" + str(INFO) + "$"),
         CallbackQueryHandler(weather, pattern="^" + str(WEATHER) + "$"),
         CallbackQueryHandler(end, pattern="^" + str(END) + "$")
