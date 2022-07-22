@@ -140,7 +140,6 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     temp = str(weather[0]['Temperature']['Metric']['Value'])
     msg = ( "The weather today in Milan is " + condition.lower() + "!\n"
           "It is " + temp + " degrees Celsius" )
-    
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
@@ -369,6 +368,7 @@ def main() -> None:
         entry_points=[CommandHandler("start", start)],
         states={
             INFO: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
+            WEATHER: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
             SELECTING_ACTION: selection_handlers,
             SELECTING_LEVEL: selection_handlers,
             DESCRIBING_SELF: [description_conv],
