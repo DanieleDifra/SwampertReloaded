@@ -82,10 +82,10 @@ def _name_switcher(level: str) -> Tuple[str, str]:
 
 # Top level conversation callbacks
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Select an action: Adding parent/child or show data."""
+    """Select an action: water the plants or check the weather"""
     text = (
-        "You may choose to add a family member, yourself, show the gathered data, or end the "
-        "conversation. To abort, simply type /stop."
+        "You may choose to water the plants, check the weather of Milan or get some info about the devloper or"
+        "just end the conversation. To abort, simply type /stop."
     )
 
     buttons = [
@@ -116,6 +116,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Informations about the bot"""
+
     context.user_data[CURRENT_LEVEL] = SELF
     msg = "This bot is made by Daniele Di Francesco for the IOT course in PoliMi"
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
@@ -131,6 +132,8 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Weather informations"""
+
+    context.user_data[CURRENT_LEVEL] = SELF
 
     weather = getWeather()
     condition = str(weather[0]['WeatherText'])
@@ -167,7 +170,7 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 # Second level conversation callbacks
-async def select_level(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def select_pot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Choose the pot to water"""
     text = "Choose the pot to water, or choose to water all the pots together"
     buttons = [
@@ -287,7 +290,7 @@ async def end_describing(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         user_data[START_OVER] = True
         await start(update, context)
     else:
-        await select_level(update, context)
+        await select_pot(update, context)
 
     return END
 
@@ -331,7 +334,7 @@ def main() -> None:
 
     # Set up second level ConversationHandler (adding a person)
     add_member_conv = ConversationHandler(
-        entry_points=[CallbackQueryHandler(select_level, pattern="^" + str(WATER_POTS) + "$")],
+        entry_points=[CallbackQueryHandler(select_pot, pattern="^" + str(WATER_POTS) + "$")],
         states={
             SELECTING_LEVEL: [
                 CallbackQueryHandler(select_gender, pattern=f"^{PARENTS}$|^{CHILDREN}$")
