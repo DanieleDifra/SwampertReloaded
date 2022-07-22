@@ -114,20 +114,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     return SELECTING_ACTION
 
 
-async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Gather informations about the weather"""
+async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+    """Informations about the bot"""
     context.user_data[CURRENT_LEVEL] = SELF
-    text = "Okay, please tell me about yourself."
-    button = InlineKeyboardButton(text="Add info", callback_data=str(MALE))
-    keyboard = InlineKeyboardMarkup.from_button(button)
+    msg = "This bot is made by Daniele Di Francesco for the IOT course in PoliMi"
+    buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
+    keyboard = InlineKeyboardMarkup(buttons)
 
+    user_data = context.user_data
     await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    await update.callback_query.edit_message_text(text=msg, reply_markup=keyboard)
+    user_data[START_OVER] = True
 
-    return DESCRIBING_SELF
+    return INFO
 
 
-async def show_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Weather informations"""
 
     weather = getWeather()
@@ -144,7 +146,7 @@ async def show_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.edit_message_text(text=msg, reply_markup=keyboard)
     user_data[START_OVER] = True
 
-    return INFO
+    return WEATHER
 
 
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -337,7 +339,7 @@ def main() -> None:
             SELECTING_GENDER: [description_conv],
         },
         fallbacks=[
-            CallbackQueryHandler(show_data, pattern="^" + str(INFO) + "$"),
+            CallbackQueryHandler(weather, pattern="^" + str(INFO) + "$"),
             CallbackQueryHandler(end_second_level, pattern="^" + str(END) + "$"),
             CommandHandler("stop", stop_nested),
         ],
@@ -356,8 +358,8 @@ def main() -> None:
     # conversation, we need to make sure the top level conversation can also handle them
     selection_handlers = [
         add_member_conv,
-        CallbackQueryHandler(show_data, pattern="^" + str(INFO) + "$"),
-        CallbackQueryHandler(WEATHER, pattern="^" + str(WEATHER) + "$"),
+        CallbackQueryHandler(info, pattern="^" + str(INFO) + "$"),
+        CallbackQueryHandler(weather, pattern="^" + str(WEATHER) + "$"),
         CallbackQueryHandler(end, pattern="^" + str(END) + "$"),
     ]
     conv_handler = ConversationHandler(
