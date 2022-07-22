@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# pylint: disable=unused-argument, wrong-import-position
+# This program is dedicated to the public domain under the CC0 license.
+
 """
 First, a few callback functions are defined. Then, those functions are passed to
 the Application and registered at their respective places.
@@ -43,13 +47,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # State definitions for top level conversation
-SELECTING_ACTION, WATER_POTS, WEATHER, DESCRIBING_SELF = map(chr, range(4))
+SELECTING_ACTION, ADDING_MEMBER, ADDING_SELF, DESCRIBING_SELF = map(chr, range(4))
 # State definitions for second level conversation
 SELECTING_LEVEL, SELECTING_GENDER = map(chr, range(4, 6))
 # State definitions for descriptions conversation
 SELECTING_FEATURE, TYPING = map(chr, range(6, 8))
 # Meta states
-STOPPING, INFO = map(chr, range(8, 10))
+STOPPING, SHOWING = map(chr, range(8, 10))
 # Shortcut for ConversationHandler.END
 END = ConversationHandler.END
 
@@ -87,11 +91,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     buttons = [
         [
-            InlineKeyboardButton(text="Water some pots!", callback_data=str(WATER_POTS)),
-            InlineKeyboardButton(text="Check weather", callback_data=str(WEATHER)),
+            InlineKeyboardButton(text="Add family member", callback_data=str(ADDING_MEMBER)),
+            InlineKeyboardButton(text="Add yourself", callback_data=str(ADDING_SELF)),
         ],
         [
-            InlineKeyboardButton(text="Info", callback_data=str(INFO)),
+            InlineKeyboardButton(text="Show data", callback_data=str(SHOWING)),
             InlineKeyboardButton(text="Done", callback_data=str(END)),
         ],
     ]
@@ -103,7 +107,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     else:
         await update.message.reply_text(
-            "Hi, I'm Swampert manager. Here you can control your home irrigation system"
+            "Hi, I'm Family Bot and I'm here to help you gather information about your family."
         )
         await update.message.reply_text(text=text, reply_markup=keyboard)
 
@@ -111,8 +115,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     return SELECTING_ACTION
 
 
-async def WEATHER(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Gather informations about the weather"""
+async def adding_self(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+    """Add information about yourself."""
     context.user_data[CURRENT_LEVEL] = SELF
     text = "Okay, please tell me about yourself."
     button = InlineKeyboardButton(text="Add info", callback_data=str(MALE))
@@ -125,21 +129,40 @@ async def WEATHER(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 
 async def show_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Weather informations"""
+    """Pretty print gathered data."""
 
-    weather = getWeather()
-    condition = str(weather[0]['WeatherText'])
-    temp = str(weather[0]['Temperature']['Metric']['Value'])
-    msg = ( "The weather today in Milan is " + condition.lower + "!\n"
-          "It is " + temp + " degrees Celsius" )
-    
+    def pretty_print(data: Dict[str, Any], level: str) -> str:
+        people = data.get(level)
+        if not people:
+            return "\nNo information yet."
+
+        return_str = ""
+        if level == SELF:
+            for person in data[level]:
+                return_str += f"\nName: {person.get(NAME, '-')}, Age: {person.get(AGE, '-')}"
+        else:
+            male, female = _name_switcher(level)
+
+            for person in data[level]:
+                gender = female if person[GENDER] == FEMALE else male
+                return_str += (
+                    f"\n{gender}: Name: {person.get(NAME, '-')}, Age: {person.get(AGE, '-')}"
+                )
+        return return_str
+
+    user_data = context.user_data
+    text = f"Yourself:{pretty_print(user_data, SELF)}"
+    text += f"\n\nParents:{pretty_print(user_data, PARENTS)}"
+    text += f"\n\nChildren:{pretty_print(user_data, CHILDREN)}"
+
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
     await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=msg, reply_markup=keyboard)
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    user_data[START_OVER] = True
 
-    return INFO
+    return SHOWING
 
 
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -161,18 +184,16 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 # Second level conversation callbacks
 async def select_level(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Choose the pot to water"""
-    text = "Choose the pot to water, or choose to water all the pots together"
+    """Choose to add a parent or a child."""
+    text = "You may add a parent or a child. Also you can show the gathered data or go back."
     buttons = [
         [
-            InlineKeyboardButton(text="Pot 1", callback_data=str(PARENTS)),
-            InlineKeyboardButton(text="Pot 2", callback_data=str(CHILDREN)),
+            InlineKeyboardButton(text="Add parent", callback_data=str(PARENTS)),
+            InlineKeyboardButton(text="Add child", callback_data=str(CHILDREN)),
         ],
         [
-            InlineKeyboardButton(text="Pot 3", callback_data=str(INFO)),
-            InlineKeyboardButton(text="Everything", callback_data=str(END)),
-        ],
-        [   InlineKeyboardButton(text="Back", callback_data=str(END))
+            InlineKeyboardButton(text="Show data", callback_data=str(SHOWING)),
+            InlineKeyboardButton(text="Back", callback_data=str(END)),
         ],
     ]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -198,7 +219,7 @@ async def select_gender(update: Update, context: ContextTypes.DEFAULT_TYPE) -> s
             InlineKeyboardButton(text=f"Add {female}", callback_data=str(FEMALE)),
         ],
         [
-            InlineKeyboardButton(text="Show data", callback_data=str(INFO)),
+            InlineKeyboardButton(text="Show data", callback_data=str(SHOWING)),
             InlineKeyboardButton(text="Back", callback_data=str(END)),
         ],
     ]
@@ -295,7 +316,7 @@ async def stop_nested(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str
 def main() -> None:
     """Run the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("5434499546:AAE6TfxPDbKsX4ajVIFFcqWQUmIf3RpOt4Q").build()
+    application = Application.builder().token("TOKEN").build()
 
     # Set up third level ConversationHandler (collecting features)
     description_conv = ConversationHandler(
@@ -324,7 +345,7 @@ def main() -> None:
 
     # Set up second level ConversationHandler (adding a person)
     add_member_conv = ConversationHandler(
-        entry_points=[CallbackQueryHandler(select_level, pattern="^" + str(WATER_POTS) + "$")],
+        entry_points=[CallbackQueryHandler(select_level, pattern="^" + str(ADDING_MEMBER) + "$")],
         states={
             SELECTING_LEVEL: [
                 CallbackQueryHandler(select_gender, pattern=f"^{PARENTS}$|^{CHILDREN}$")
@@ -332,13 +353,13 @@ def main() -> None:
             SELECTING_GENDER: [description_conv],
         },
         fallbacks=[
-            CallbackQueryHandler(show_data, pattern="^" + str(INFO) + "$"),
+            CallbackQueryHandler(show_data, pattern="^" + str(SHOWING) + "$"),
             CallbackQueryHandler(end_second_level, pattern="^" + str(END) + "$"),
             CommandHandler("stop", stop_nested),
         ],
         map_to_parent={
-            # After INFO data return to top level menu
-            INFO: INFO,
+            # After showing data return to top level menu
+            SHOWING: SHOWING,
             # Return to top level menu
             END: SELECTING_ACTION,
             # End conversation altogether
@@ -351,14 +372,14 @@ def main() -> None:
     # conversation, we need to make sure the top level conversation can also handle them
     selection_handlers = [
         add_member_conv,
-        CallbackQueryHandler(show_data, pattern="^" + str(INFO) + "$"),
-        CallbackQueryHandler(WEATHER, pattern="^" + str(WEATHER) + "$"),
+        CallbackQueryHandler(show_data, pattern="^" + str(SHOWING) + "$"),
+        CallbackQueryHandler(adding_self, pattern="^" + str(ADDING_SELF) + "$"),
         CallbackQueryHandler(end, pattern="^" + str(END) + "$"),
     ]
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
-            INFO: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
+            SHOWING: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
             SELECTING_ACTION: selection_handlers,
             SELECTING_LEVEL: selection_handlers,
             DESCRIBING_SELF: [description_conv],
@@ -372,15 +393,6 @@ def main() -> None:
     # Run the bot until the user presses Ctrl-C
     application.run_polling()
 
-## Weather function
-def getWeather():
-    weather_url = "http://dataservice.accuweather.com/currentconditions/v1/214046?apikey=GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
-    response = requests.get(weather_url)
-    if response.status_code == 200:
-       json_response = json.loads(response.text)
-       return json_response
-    else:
-       return exception
 
 if __name__ == "__main__":
     main()
