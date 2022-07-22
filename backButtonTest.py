@@ -3,7 +3,10 @@
 """
 
 ## Dependancies
+import datetime
+import time
 import logging
+from ssl import PROTOCOL_TLSv1_1
 from typing import Any, Dict, Tuple
 
 from telegram import __version__ as TG_VER
@@ -39,6 +42,15 @@ import string
 
 import RPi.GPIO as GPIO
 
+## AccuWeather API connection
+accuKey = "GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
+cityKey = "214046"
+
+## Raspberry Pi setup
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(11, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
+
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -58,8 +70,10 @@ END = ConversationHandler.END
 
 # Different constants for this example
 (
-    PARENTS,
-    CHILDREN,
+    POT1,
+    POT2,
+    POT3,
+    EVERY,
     SELF,
     GENDER,
     MALE,
@@ -174,12 +188,12 @@ async def select_pot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     text = "Choose the pot to water, or choose to water all the pots together"
     buttons = [
         [
-            InlineKeyboardButton(text="Pot 1", callback_data=str(PARENTS)),
-            InlineKeyboardButton(text="Pot 2", callback_data=str(CHILDREN)),
+            InlineKeyboardButton(text="Pot 1", callback_data=str(POT1)),
+            InlineKeyboardButton(text="Pot 2", callback_data=str(POT2)),
         ],
         [
-            InlineKeyboardButton(text="Pot 3", callback_data=str(INFO)),
-            InlineKeyboardButton(text="Everything", callback_data=str(END)),
+            InlineKeyboardButton(text="Pot 3", callback_data=str(POT3)),
+            InlineKeyboardButton(text="Everything", callback_data=str(EVERY)),
         ],
         [   InlineKeyboardButton(text="Back", callback_data=str(END))
         ],
@@ -190,6 +204,86 @@ async def select_pot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
     return SELECTING_LEVEL
+
+async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+    """Water pot1"""
+    text = "Watering pot 1 ..."
+    buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
+    keyboard = InlineKeyboardMarkup(buttons)
+
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    
+    GPIO.output(11,True)
+    time.sleep(5)
+    GPIO.output(11,False)
+    lastPot11 = datetime.datetime.now()
+
+    text = "... Done"
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return POT1
+
+async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+    """Water pot1"""
+    text = "Watering pot 1 ..."
+    buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
+    keyboard = InlineKeyboardMarkup(buttons)
+
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    
+    GPIO.output(16,True)
+    time.sleep(5)
+    GPIO.output(16,False)
+    lastPot16 = datetime.datetime.now()
+
+    text = "... Done"
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return POT2
+
+async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+    """Water pot3"""
+    text = "Watering pot 3 ..."
+    buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
+    keyboard = InlineKeyboardMarkup(buttons)
+
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    
+    # GPIO.output(11,True)
+    time.sleep(5)
+    # GPIO.output(11,False)
+    # lastPot11 = datetime.datetime.now()
+
+    text = "... Done"
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return POT3
+
+async def everyPot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+    """Water every pot"""
+    text = "Watering all the pots ..."
+    buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
+    keyboard = InlineKeyboardMarkup(buttons)
+
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    
+    # GPIO.output(11,True)
+    time.sleep(5)
+    # GPIO.output(11,False)
+    # lastPot11 = datetime.datetime.now()
+
+    text = "... Done"
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+    return EVERY
 
 
 async def select_gender(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
@@ -363,6 +457,10 @@ def main() -> None:
         CallbackQueryHandler(info, pattern="^" + str(INFO) + "$"),
         CallbackQueryHandler(weather, pattern="^" + str(WEATHER) + "$"),
         CallbackQueryHandler(end, pattern="^" + str(END) + "$"),
+        CallbackQueryHandler(pot1, pattern="^" + str(POT1) + "$"),
+        CallbackQueryHandler(pot2, pattern="^" + str(POT2) + "$"),
+        CallbackQueryHandler(pot3, pattern="^" + str(POT3) + "$"),
+        CallbackQueryHandler(everyPot, pattern="^" + str(EVERY) + "$"),
     ]
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
