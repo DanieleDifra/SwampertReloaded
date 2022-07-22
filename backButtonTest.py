@@ -100,7 +100,7 @@ def _name_switcher(level: str) -> Tuple[str, str]:
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Select an action: water the plants or check the weather"""
     text = (
-        "You may choose to water the plants, check the weather of Milan or get some info about the devloper or"
+        "You may choose to water the plants, check the weather of Milan, get some info about the developer or"
         "just end the conversation. To abort, simply type /stop."
     )
 
@@ -122,7 +122,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     else:
         await update.message.reply_text(
-            "Hi, I'm Swampert manager. Here you can control your home irrigation system"
+            "Hi, I'm Swampert manager. Here you can control your home irrigation system\n"
             "\nLast time pot 1 was watered: " + lastPot1.strftime("%d/%m/%Y - %H:%M") + 
             "\nLast time pot 2 was watered: " + lastPot2.strftime("%d/%m/%Y - %H:%M") + 
             "\nLast time pot 3 was watered: " + lastPot3.strftime("%d/%m/%Y - %H:%M")
@@ -251,7 +251,7 @@ async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     GPIO.output(16,False)
     lastPot2 = datetime.datetime.now()
 
-    text += "\n...\n... done"
+    text += "\n...\n...\ndone"
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
@@ -272,7 +272,7 @@ async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     # GPIO.output(11,False)
     lastPot3 = datetime.datetime.now()
 
-    text += "\n...\n... done"
+    text += "\n...\n...\ndone"
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
@@ -292,7 +292,7 @@ async def everyPot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     # GPIO.output(11,False)
     # lastPot11 = datetime.datetime.now()
 
-    text += "\n...\n... done"
+    text += "\n...\n...\ndone"
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
