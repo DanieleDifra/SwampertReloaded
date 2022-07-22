@@ -114,7 +114,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     return SELECTING_ACTION
 
 
-async def WEATHER(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Gather informations about the weather"""
     context.user_data[CURRENT_LEVEL] = SELF
     text = "Okay, please tell me about yourself."
@@ -139,8 +139,10 @@ async def show_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
+    user_data = context.user_data
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=msg, reply_markup=keyboard)
+    user_data[START_OVER] = True
 
     return INFO
 
