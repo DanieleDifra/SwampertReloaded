@@ -70,17 +70,19 @@ END = ConversationHandler.END
 
 # Different constants for this example
 (
+    PARENTS,
+    CHILDREN,
+    SELF,
+    EVERY,
     POT1,
     POT2,
     POT3,
-    EVERY,
-    SELF,
-    GENDER,
+    NAME,
     START_OVER,
     FEATURES,
     CURRENT_FEATURE,
     CURRENT_LEVEL,
-) = map(chr, range(8, 22))
+) = map(chr, range(10, 22))
 
 
 # Helper
@@ -281,90 +283,12 @@ async def everyPot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     return EVERY
 
-
-async def select_gender(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Choose to add mother or father."""
-    level = update.callback_query.data
-    context.user_data[CURRENT_LEVEL] = level
-
-    text = "Please choose, whom to add."
-
-    male, female = _name_switcher(level)
-
-    buttons = [
-        [
-            InlineKeyboardButton(text=f"Add {male}", callback_data=str(MALE)),
-            InlineKeyboardButton(text=f"Add {female}", callback_data=str(FEMALE)),
-        ],
-        [
-            InlineKeyboardButton(text="Show data", callback_data=str(INFO)),
-            InlineKeyboardButton(text="Back", callback_data=str(END)),
-        ],
-    ]
-    keyboard = InlineKeyboardMarkup(buttons)
-
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
-
-    return SELECTING_GENDER
-
-
 async def end_second_level(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Return to top level conversation."""
     context.user_data[START_OVER] = True
     await start(update, context)
 
     return END
-
-
-# Third level callbacks
-async def select_feature(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Select a feature to update for the person."""
-    buttons = [
-        [
-            InlineKeyboardButton(text="Name", callback_data=str(NAME)),
-            InlineKeyboardButton(text="Age", callback_data=str(AGE)),
-            InlineKeyboardButton(text="Done", callback_data=str(END)),
-        ]
-    ]
-    keyboard = InlineKeyboardMarkup(buttons)
-
-    # If we collect features for a new person, clear the cache and save the gender
-    if not context.user_data.get(START_OVER):
-        context.user_data[FEATURES] = {GENDER: update.callback_query.data}
-        text = "Please select a feature to update."
-
-        await update.callback_query.answer()
-        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
-    # But after we do that, we need to send a new message
-    else:
-        text = "Got it! Please select a feature to update."
-        await update.message.reply_text(text=text, reply_markup=keyboard)
-
-    context.user_data[START_OVER] = False
-    return SELECTING_FEATURE
-
-
-async def ask_for_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Prompt user to input data for selected feature."""
-    context.user_data[CURRENT_FEATURE] = update.callback_query.data
-    text = "Okay, tell me."
-
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=text)
-
-    return TYPING
-
-
-async def save_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Save input for feature and return to feature selection."""
-    user_data = context.user_data
-    user_data[FEATURES][user_data[CURRENT_FEATURE]] = update.message.text
-
-    user_data[START_OVER] = True
-
-    return await select_feature(update, context)
-
 
 async def end_describing(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """End gathering of features and return to parent conversation."""
