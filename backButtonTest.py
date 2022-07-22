@@ -51,6 +51,10 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(11, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
 
+lastPot1 = datetime.datetime.now()
+lastPot2 = datetime.datetime.now()
+lastPot3 = datetime.datetime.now()
+
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -119,6 +123,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     else:
         await update.message.reply_text(
             "Hi, I'm Swampert manager. Here you can control your home irrigation system"
+            "\nLast time pot 1 was watered: " + lastPot1.strftime("%d/%m/%Y - %H:%M") + 
+            "\nLast time pot 2 was watered: " + lastPot2.strftime("%d/%m/%Y - %H:%M") + 
+            "\nLast time pot 3 was watered: " + lastPot3.strftime("%d/%m/%Y - %H:%M")
         )
         await update.message.reply_text(text=text, reply_markup=keyboard)
 
@@ -205,11 +212,12 @@ async def select_pot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     user_data[START_OVER] = True
-    
+
     return SELECTING_LEVEL
 
 async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot1"""
+    global lastPot1
     text = "Watering pot 1 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -220,17 +228,18 @@ async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     GPIO.output(11,True)
     time.sleep(5)
     GPIO.output(11,False)
-    lastPot11 = datetime.datetime.now()
+    lastPot1 = datetime.datetime.now()
 
-    text = "... Done"
+    text += "\n...\n... done"
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
     return POT1
 
 async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
-    """Water pot1"""
-    text = "Watering pot 1 ..."
+    """Water pot2"""
+    global lastPot2
+    text = "Watering pot 2 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
@@ -240,9 +249,9 @@ async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     GPIO.output(16,True)
     time.sleep(5)
     GPIO.output(16,False)
-    lastPot16 = datetime.datetime.now()
+    lastPot2 = datetime.datetime.now()
 
-    text = "... Done"
+    text += "\n...\n... done"
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
@@ -250,6 +259,7 @@ async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot3"""
+    global lastPot3
     text = "Watering pot 3 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -260,9 +270,9 @@ async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     # GPIO.output(11,True)
     time.sleep(5)
     # GPIO.output(11,False)
-    # lastPot11 = datetime.datetime.now()
+    lastPot3 = datetime.datetime.now()
 
-    text = "... Done"
+    text += "\n...\n... done"
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
@@ -282,7 +292,7 @@ async def everyPot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     # GPIO.output(11,False)
     # lastPot11 = datetime.datetime.now()
 
-    text = "... Done"
+    text += "\n...\n... done"
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
