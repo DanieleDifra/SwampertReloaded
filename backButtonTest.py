@@ -133,7 +133,7 @@ async def show_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     weather = getWeather()
     condition = str(weather[0]['WeatherText'])
     temp = str(weather[0]['Temperature']['Metric']['Value'])
-    msg = ( "The weather today in Milan is " + condition.lower + "!\n"
+    msg = ( "The weather today in Milan is " + condition.lower() + "!\n"
           "It is " + temp + " degrees Celsius" )
     
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
