@@ -80,7 +80,7 @@ END = ConversationHandler.END
     FEATURES,
     CURRENT_FEATURE,
     CURRENT_LEVEL,
-) = map(chr, range(10, 22))
+) = map(chr, range(8, 22))
 
 
 # Helper
