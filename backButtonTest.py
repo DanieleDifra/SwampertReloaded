@@ -60,12 +60,6 @@ GPIO.setup(27, GPIO.OUT, initial=GPIO.HIGH)
 GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)
 GPIO.setup(18, GPIO.OUT, initial=GPIO.HIGH)
 
-# Initializing classes
-pot1 = Models.Pot(23)
-pot2 = Models.Pot(24)
-pot3 = Models.Pot(5)
-pots = [ pot1, pot2, pot3 ]
-
 # Water time (seconds)
 WATER_TIME = 5 
 
@@ -344,6 +338,12 @@ def main() -> None:
     # Create the Application and pass it your bot's token.
     application = Application.builder().token("5434499546:AAE6TfxPDbKsX4ajVIFFcqWQUmIf3RpOt4Q").build()
 
+    # Initializing classes
+    pot1 = Models.Pot(23)
+    pot2 = Models.Pot(24)
+    pot3 = Models.Pot(5)
+    pots = [ pot1, pot2, pot3 ]
+    
     # Set up second level ConversationHandler (adding a person)
     pot_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(select_pot, pattern="^" + str(WATER_POTS) + "$")],
