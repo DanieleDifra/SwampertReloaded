@@ -364,7 +364,7 @@ def main() -> None:
         entry_points=[CallbackQueryHandler(select_pot, pattern="^" + str(WATER_POTS) + "$")],
         states={
             SELECTING_LEVEL: [
-                CallbackQueryHandler(water1, pattern="^" + str(POT1) + "$", run_async=True),
+                CallbackQueryHandler(run_async=True, water1, pattern="^" + str(POT1) + "$"),
                 CallbackQueryHandler(water2, pattern="^" + str(POT2) + "$"),
                 CallbackQueryHandler(water3, pattern="^" + str(POT3) + "$"),
                 CallbackQueryHandler(waterAll, pattern="^" + str(EVERY) + "$"),
