@@ -2,10 +2,11 @@
 
 """
 
-## Dependancies
+## Dependencies
 import datetime
 import time
 import logging
+import pot
 from ssl import PROTOCOL_TLSv1_1
 from typing import Any, Dict, Tuple
 
@@ -42,19 +43,33 @@ import string
 
 import RPi.GPIO as GPIO
 
-## AccuWeather API connection
+## Variables declaration
+# AccuWeather API connection
 accuKey = "GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
 cityKey = "214046"
 
 ## Raspberry Pi setup
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(11, GPIO.OUT, initial=GPIO.LOW)
-GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(5, GPIO.OUT, initial=GPIO.HIGH) # pot 3
+GPIO.setup(25, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(6, GPIO.OUT, initial=GPIO.HIGH) # to empty the water tank
+GPIO.setup(24, GPIO.OUT, initial=GPIO.HIGH) # pot 2
+GPIO.setup(23, GPIO.OUT, initial=GPIO.HIGH) # pot 1
+GPIO.setup(22, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(27, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)
+GPIO.setup(18, GPIO.OUT, initial=GPIO.HIGH)
 
-lastPot1 = datetime.datetime.now()
-lastPot2 = datetime.datetime.now()
-lastPot3 = datetime.datetime.now()
+# Initializing classes
+pot1 = pot.Pot(23,datetime.datetime.now())
+pot2 = pot.Pot(24,datetime.datetime.now())
+pot3 = pot.Pot(5,datetime.datetime.now())
+pots = [ pot1, pot2, pot3]
 
+# Water time
+WATER_TIME = 5
+
+## Telegram code
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -88,14 +103,6 @@ END = ConversationHandler.END
     CURRENT_LEVEL,
 ) = map(chr, range(10, 22))
 
-
-# Helper
-def _name_switcher(level: str) -> Tuple[str, str]:
-    if level == PARENTS:
-        return "Father", "Mother"
-    return "Brother", "Sister"
-
-
 # Top level conversation callbacks
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Select an action: water the plants or check the weather"""
@@ -123,9 +130,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     else:
         await update.message.reply_text(
             "Hi, I'm Swampert manager. Here you can control your home irrigation system\n"
-            "\nLast time pot 1 was watered: " + lastPot1.strftime("%d/%m/%Y - %H:%M") + 
-            "\nLast time pot 2 was watered: " + lastPot2.strftime("%d/%m/%Y - %H:%M") + 
-            "\nLast time pot 3 was watered: " + lastPot3.strftime("%d/%m/%Y - %H:%M")
+            "\nLast time pot 1 was watered: " + pot1.lastWater.strftime("%d/%m/%Y - %H:%M") + 
+            "\nLast time pot 2 was watered: " + pot2.lastWater.strftime("%d/%m/%Y - %H:%M") + 
+            "\nLast time pot 3 was watered: " + pot3.lastWater.strftime("%d/%m/%Y - %H:%M")
         )
         await update.message.reply_text(text=text, reply_markup=keyboard)
 
@@ -217,7 +224,6 @@ async def select_pot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot1"""
-    global lastPot1
     text = "Watering pot 1 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -225,10 +231,10 @@ async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    GPIO.output(11,True)
-    time.sleep(5)
-    GPIO.output(11,False)
-    lastPot1 = datetime.datetime.now()
+    GPIO.output(pot1.pin,0) #Open the valve
+    time.sleep(WATER_TIME)
+    GPIO.output(pot1.pin,1) #Close the valve
+    pot1.lastWater = datetime.datetime.now()
 
     text += "\n...\n... done"
     await update.callback_query.answer()
@@ -238,7 +244,6 @@ async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot2"""
-    global lastPot2
     text = "Watering pot 2 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -246,10 +251,10 @@ async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    GPIO.output(16,True)
-    time.sleep(5)
-    GPIO.output(16,False)
-    lastPot2 = datetime.datetime.now()
+    GPIO.output(pot2.pin,0) #Open the valve
+    time.sleep(WATER_TIME)
+    GPIO.output(pot2.pin,1) #Close the valve
+    pot2.lastWater = datetime.datetime.now()
 
     text += "\n...\n...\ndone"
     await update.callback_query.answer()
@@ -259,7 +264,6 @@ async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot3"""
-    global lastPot3
     text = "Watering pot 3 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -267,10 +271,10 @@ async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    # GPIO.output(11,True)
-    time.sleep(5)
-    # GPIO.output(11,False)
-    lastPot3 = datetime.datetime.now()
+    GPIO.output(pot3.pin,0) #Open the valve
+    time.sleep(WATER_TIME)
+    GPIO.output(pot3.pin,1) #Close the valve
+    pot3.lastWater = datetime.datetime.now()
 
     text += "\n...\n...\ndone"
     await update.callback_query.answer()
@@ -281,16 +285,17 @@ async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 async def everyPot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water every pot"""
     text = "Watering all the pots ..."
-    buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
+    buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    # GPIO.output(11,True)
-    time.sleep(5)
-    # GPIO.output(11,False)
-    # lastPot11 = datetime.datetime.now()
+    for p in pots:
+        GPIO.output(p.pin,0)
+        time.sleep(5)
+        GPIO.output(p.pin,False)
+        p.lastWater = datetime.datetime.now()
 
     text += "\n...\n...\ndone"
     await update.callback_query.answer()
@@ -351,8 +356,6 @@ def main() -> None:
             CommandHandler("stop", stop_nested),
         ],
         map_to_parent={
-            # After INFO data return to top level menu
-            INFO: INFO,
             # Return to top level menu
             END: SELECTING_ACTION,
             # End conversation altogether
@@ -386,7 +389,7 @@ def main() -> None:
 
 ## Weather function
 def getWeather():
-    weather_url = "http://dataservice.accuweather.com/currentconditions/v1/214046?apikey=GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
+    weather_url = "http://dataservice.accuweather.com/currentconditions/v1/"+cityKey+"?apikey="+accuKey
     response = requests.get(weather_url)
     if response.status_code == 200:
        json_response = json.loads(response.text)
