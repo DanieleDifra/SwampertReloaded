@@ -4,17 +4,19 @@ import time
 class Pot:
     def __init__(self,pin):
         self.pin = pin
-        self.last = datetime.datetime.now
+        self.last = datetime.datetime.now()
 
 pot1 = Pot(1)
 pot2 = Pot(2)
 
-print(str(pot1.last))
+print(pot1.last)
 
-def change(p):
+def change():
     time.sleep(2)
-    p.last = datetime.datetime.now
+    pot2.last = datetime.datetime.now()
+    print(pot2.last.strftime("%d/%m/%Y - %H:%M"))
 
-change(pot2)
-print(str(pot2.last))
+change()
+
+
 

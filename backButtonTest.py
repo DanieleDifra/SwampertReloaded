@@ -6,7 +6,7 @@
 import datetime
 import time
 import logging
-import pot
+import Models
 from ssl import PROTOCOL_TLSv1_1
 from typing import Any, Dict, Tuple
 
@@ -61,10 +61,10 @@ GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)
 GPIO.setup(18, GPIO.OUT, initial=GPIO.HIGH)
 
 # Initializing classes
-pot1 = pot.Pot(23,datetime.datetime.now())
-pot2 = pot.Pot(24,datetime.datetime.now())
-pot3 = pot.Pot(5,datetime.datetime.now())
-pots = [ pot1, pot2, pot3]
+pot1 = Models.Pot(23)
+pot2 = Models.Pot(24)
+pot3 = Models.Pot(5)
+pots = [ pot1, pot2, pot3 ]
 
 # Water time (seconds)
 WATER_TIME = 5 
@@ -111,6 +111,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         "just end the conversation. To abort, simply type /stop."
     )
 
+    last1 = pot1.lastWater.strftime("%d/%m/%Y - %H:%M")
+    last2 = pot2.lastWater.strftime("%d/%m/%Y - %H:%M")
+    last3 = pot3.lastWater.strftime("%d/%m/%Y - %H:%M")
+
     buttons = [
         [
             InlineKeyboardButton(text="Water some pots!", callback_data=str(WATER_POTS)),
@@ -122,7 +126,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         ],
     ]
     keyboard = InlineKeyboardMarkup(buttons)
-
+   
     # If we're starting over we don't need to send a new message
     if context.user_data.get(START_OVER):
         await update.callback_query.answer()
@@ -130,9 +134,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     else:
         await update.message.reply_text(
             "Hi, I'm Swampert manager. Here you can control your home irrigation system\n"
-            "\nLast time pot 1 was watered: " + pot1.lastWater.strftime("%d/%m/%Y - %H:%M") + 
-            "\nLast time pot 2 was watered: " + pot2.lastWater.strftime("%d/%m/%Y - %H:%M") + 
-            "\nLast time pot 3 was watered: " + pot3.lastWater.strftime("%d/%m/%Y - %H:%M")
+            "\nLast time pot 1 was watered: " + last1 + 
+            "\nLast time pot 2 was watered: " + last2 + 
+            "\nLast time pot 3 was watered: " + last3
         )
         await update.message.reply_text(text=text, reply_markup=keyboard)
 
