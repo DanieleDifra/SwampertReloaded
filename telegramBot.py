@@ -235,7 +235,7 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer()
+    await update.callback_query.answer(cache_time=100)
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
     GPIO.output(pot1.pin,0) #Open the valve
@@ -244,7 +244,7 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     pot1.lastWater = datetime.datetime.now()
 
     text += "\n...\n... done"
-    await update.callback_query.answer()
+    await update.callback_query.answer(cache_time=100)
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
     return POT1
@@ -275,7 +275,7 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer()
+    await update.callback_query.answer(cache_time=100)
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
     GPIO.output(pot3.pin,0) #Open the valve
@@ -284,7 +284,7 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     pot3.lastWater = datetime.datetime.now()
 
     text += "\n...\n...\ndone"
-    await update.callback_query.answer()
+    await update.callback_query.answer(cache_time=100)
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
     return POT3
