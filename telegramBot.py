@@ -67,7 +67,7 @@ pot3 = Models.Pot(5)
 pots = [ pot1, pot2, pot3 ]
 
 # Water time (seconds)
-WATER_TIME = 5 
+WATER_TIME = 60 
 
 ## Telegram code
 # Enable logging
