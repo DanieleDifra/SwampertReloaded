@@ -60,6 +60,12 @@ GPIO.setup(27, GPIO.OUT, initial=GPIO.HIGH)
 GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)
 GPIO.setup(18, GPIO.OUT, initial=GPIO.HIGH)
 
+# Initializing classes
+pot1 = Models.Pot(23)
+pot2 = Models.Pot(24)
+pot3 = Models.Pot(5)
+pots = [ pot1, pot2, pot3 ]
+
 # Water time (seconds)
 WATER_TIME = 5 
 
@@ -220,7 +226,7 @@ async def select_pot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     return SELECTING_LEVEL
 
-async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot1"""
     text = "Watering pot 1 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
@@ -240,7 +246,7 @@ async def pot1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     return POT1
 
-async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot2"""
     text = "Watering pot 2 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
@@ -260,7 +266,7 @@ async def pot2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     return POT2
 
-async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot3"""
     text = "Watering pot 3 ..."
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
@@ -280,7 +286,7 @@ async def pot3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     return POT3
 
-async def everyPot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water every pot"""
     text = "Watering all the pots ..."
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
@@ -338,21 +344,15 @@ def main() -> None:
     # Create the Application and pass it your bot's token.
     application = Application.builder().token("5434499546:AAE6TfxPDbKsX4ajVIFFcqWQUmIf3RpOt4Q").build()
 
-    # Initializing classes
-    pot1 = Models.Pot(23)
-    pot2 = Models.Pot(24)
-    pot3 = Models.Pot(5)
-    pots = [ pot1, pot2, pot3 ]
-    
     # Set up second level ConversationHandler (adding a person)
     pot_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(select_pot, pattern="^" + str(WATER_POTS) + "$")],
         states={
             SELECTING_LEVEL: [
-                CallbackQueryHandler(pot1, pattern="^" + str(POT1) + "$"),
-                CallbackQueryHandler(pot2, pattern="^" + str(POT2) + "$"),
-                CallbackQueryHandler(pot3, pattern="^" + str(POT3) + "$"),
-                CallbackQueryHandler(everyPot, pattern="^" + str(EVERY) + "$"),
+                CallbackQueryHandler(water1, pattern="^" + str(POT1) + "$"),
+                CallbackQueryHandler(water2, pattern="^" + str(POT2) + "$"),
+                CallbackQueryHandler(water3, pattern="^" + str(POT3) + "$"),
+                CallbackQueryHandler(waterAll, pattern="^" + str(EVERY) + "$"),
             ]
         },
         fallbacks=[
