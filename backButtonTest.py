@@ -106,14 +106,22 @@ END = ConversationHandler.END
 # Top level conversation callbacks
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Select an action: water the plants or check the weather"""
-    text = (
-        "You may choose to water the plants, check the weather of Milan, get some info about the developer or"
-        "just end the conversation. To abort, simply type /stop."
-    )
 
     last1 = pot1.lastWater.strftime("%d/%m/%Y - %H:%M")
     last2 = pot2.lastWater.strftime("%d/%m/%Y - %H:%M")
     last3 = pot3.lastWater.strftime("%d/%m/%Y - %H:%M")
+
+    text = (
+        "You may choose to water the plants, check the weather of Milan, get some info about the developer or"
+        "just end the conversation. To abort, simply type /stop.\n\n"
+        "Last time pot 1 was watered: " + last1 + 
+        "\nLast time pot 2 was watered: " + last2 + 
+        "\nLast time pot 3 was watered: " + last3
+    )
+
+    # Making sure that the valves are closed
+    for p in pots:
+        GPIO.output(p.pin,1)
 
     buttons = [
         [
@@ -133,10 +141,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     else:
         await update.message.reply_text(
-            "Hi, I'm Swampert manager. Here you can control your home irrigation system\n"
-            "\nLast time pot 1 was watered: " + last1 + 
-            "\nLast time pot 2 was watered: " + last2 + 
-            "\nLast time pot 3 was watered: " + last3
+            "Hi, I'm Swampert manager. Here you can control your home irrigation system"
         )
         await update.message.reply_text(text=text, reply_markup=keyboard)
 
@@ -297,9 +302,13 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     
     for p in pots:
         GPIO.output(p.pin,0)
-        time.sleep(5)
-        GPIO.output(p.pin,False)
+        time.sleep(0.5) # I don't want the valves to open simultaneously
+        
+    time.sleep(WATER_TIME)
+    for p in pots:
+        GPIO.output(p.pin,1)
         p.lastWater = datetime.datetime.now()
+
 
     text += "\n...\n...\ndone"
     await update.callback_query.answer()
