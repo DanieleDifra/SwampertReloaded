@@ -66,8 +66,8 @@ pot2 = pot.Pot(24,datetime.datetime.now())
 pot3 = pot.Pot(5,datetime.datetime.now())
 pots = [ pot1, pot2, pot3]
 
-# Water time
-WATER_TIME = 5
+# Water time (seconds)
+WATER_TIME = 5 
 
 ## Telegram code
 # Enable logging
