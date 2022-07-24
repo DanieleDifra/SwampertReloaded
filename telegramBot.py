@@ -371,7 +371,7 @@ def getWeather():
 
 ## MQTT publish to ThingSpeak
 def mqttPublish(n):
-    payload = "field" + n + "=0.5"
+    payload = "field" + str(n) + "=0.5"
     try:
         print ("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
         publish.single(topic, payload, hostname=mqtt_host, transport=t_transport, port=t_port, client_id=mqtt_client_ID, auth={'username':mqtt_username,'password':mqtt_password})
