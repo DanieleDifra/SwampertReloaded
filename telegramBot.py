@@ -29,17 +29,10 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     ConversationHandler,
-    MessageHandler,
-    filters,
 )
-
 import requests
 import json
-
 import paho.mqtt.publish as publish
-import psutil
-import string
-
 import RPi.GPIO as GPIO
 
 ## Variables declaration
@@ -48,6 +41,7 @@ accuKey = "GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
 cityKey = "214046"
 
 # Raspberry Pi setup
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(5, GPIO.OUT, initial=GPIO.HIGH) # pot 3
 GPIO.setup(25, GPIO.OUT, initial=GPIO.HIGH)
@@ -57,7 +51,7 @@ GPIO.setup(23, GPIO.OUT, initial=GPIO.HIGH) # pot 1
 GPIO.setup(22, GPIO.OUT, initial=GPIO.HIGH)
 GPIO.setup(27, GPIO.OUT, initial=GPIO.HIGH)
 GPIO.setup(17, GPIO.OUT, initial=GPIO.HIGH)
-GPIO.setup(18, GPIO.OUT, initial=GPIO.HIGH)
+#GPIO.setup(18, GPIO.OUT, initial=GPIO.HIGH)
 
 # Initializing classes
 pot1 = Models.Pot(23)
@@ -146,7 +140,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Informations about the bot"""
 
     context.user_data[CURRENT_LEVEL] = SELF
-    msg = "This bot is made by Daniele Di Francesco for the IOT course @PoliMi"
+    msg = "This bot is made by Daniele Di Francesco (@DanieleDifra) for the IOT course in PoliMi"
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
