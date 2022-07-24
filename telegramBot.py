@@ -12,6 +12,8 @@ from typing import Any, Dict, Tuple
 
 from telegram import __version__ as TG_VER
 
+from old.telegramBot_old import mqttPublish
+
 try:
     from telegram import __version_info__
 except ImportError:
@@ -67,7 +69,17 @@ pot3 = Models.Pot(5)
 pots = [ pot1, pot2, pot3 ]
 
 # Water time (seconds)
-WATER_TIME = 30 
+WATER_TIME = 1 
+
+# ThingSpeak Channel connection
+channel_ID = "1806671"
+mqtt_host = "mqtt3.thingspeak.com"
+mqtt_client_ID = "ITgGHjUoFwwZEDIUPCgIJS8"
+mqtt_username  = "ITgGHjUoFwwZEDIUPCgIJS8"
+mqtt_password  = "51bdD9cJODXzePgbKtaNFKQk"
+t_transport = "websockets"
+t_port = 80
+topic = "channels/" + channel_ID + "/publish"
 
 ## Telegram code
 # Enable logging
@@ -238,10 +250,11 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    GPIO.output(pot1.pin,0) #Open the valve
+    #GPIO.output(pot1.pin,0) #Open the valve
     time.sleep(WATER_TIME)
     GPIO.output(pot1.pin,1) #Close the valve
     pot1.lastWater = datetime.datetime.now()
+    mqttPublish(1)
 
     text += "\n...\n... done"
     await update.callback_query.answer()
@@ -258,10 +271,11 @@ async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    GPIO.output(pot2.pin,0) #Open the valve
+    #GPIO.output(pot2.pin,0) #Open the valve
     time.sleep(WATER_TIME)
     GPIO.output(pot2.pin,1) #Close the valve
     pot2.lastWater = datetime.datetime.now()
+    mqttPublish(2)
 
     text += "\n...\n...\ndone"
     await update.callback_query.answer()
@@ -278,10 +292,11 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    GPIO.output(pot3.pin,0) #Open the valve
+    #GPIO.output(pot3.pin,0) #Open the valve
     time.sleep(WATER_TIME)
     GPIO.output(pot3.pin,1) #Close the valve
     pot3.lastWater = datetime.datetime.now()
+    mqttPublish(3)
 
     text += "\n...\n...\ndone"
     await update.callback_query.answer()
@@ -299,14 +314,17 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
     for p in pots:
-        GPIO.output(p.pin,0)
+        #GPIO.output(p.pin,0)
         time.sleep(0.5) # I don't want the valves to open simultaneously
         
     time.sleep(WATER_TIME)
     for p in pots:
         GPIO.output(p.pin,1)
         p.lastWater = datetime.datetime.now()
+        time.sleep(0.5)
 
+    for i in range(1:3)
+        mqttPublish(i)
 
     text += "\n...\n...\ndone"
     await update.callback_query.answer()
@@ -353,6 +371,15 @@ def getWeather():
        return json_response
     else:
        return exception
+
+## MQTT publish to ThingSpeak
+def mqttPublish(n):
+    payload = "field" + n + "=0.5"
+    try:
+        print ("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
+        publish.single(topic, payload, hostname=mqtt_host, transport=t_transport, port=t_port, client_id=mqtt_client_ID, auth={'username':mqtt_username,'password':mqtt_password})
+    except Exception as e:
+        print (e)
 
 def main() -> None:
     """Run the bot."""
