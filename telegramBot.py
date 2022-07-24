@@ -1,6 +1,6 @@
-"""
-
-"""
+#!/usr/bin/env python
+# Python TelegramBot for Swampert home project.
+# By Daniele Di Francesco for IOT project @PoliMi
 
 ## Dependencies
 import datetime
@@ -47,7 +47,7 @@ import RPi.GPIO as GPIO
 accuKey = "GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
 cityKey = "214046"
 
-## Raspberry Pi setup
+# Raspberry Pi setup
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(5, GPIO.OUT, initial=GPIO.HIGH) # pot 3
 GPIO.setup(25, GPIO.OUT, initial=GPIO.HIGH)
@@ -86,29 +86,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # State definitions for top level conversation
-SELECTING_ACTION, WATER_POTS, WEATHER, DESCRIBING_SELF = map(chr, range(4))
+SELECTING_ACTION, WATER_POTS, WEATHER = map(chr, range(3))
 # State definitions for second level conversation
-SELECTING_LEVEL, SELECTING_GENDER = map(chr, range(4, 6))
+SELECTING_LEVEL = map(chr, range(3, 4))
 # Meta states
-STOPPING, INFO = map(chr, range(8, 10))
+STOPPING = map(chr, range(4, 5))
+# Different constants
+INFO, SELF, EVERY, POT1, POT2, POT3, START_OVER, CURRENT_LEVEL = map(chr, range(5, 13))
 # Shortcut for ConversationHandler.END
 END = ConversationHandler.END
-
-# Different constants for this example
-(
-    PARENTS,
-    CHILDREN,
-    SELF,
-    EVERY,
-    POT1,
-    POT2,
-    POT3,
-    NAME,
-    START_OVER,
-    FEATURES,
-    CURRENT_FEATURE,
-    CURRENT_LEVEL,
-) = map(chr, range(10, 22))
 
 # Top level conversation callbacks
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
@@ -160,7 +146,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Informations about the bot"""
 
     context.user_data[CURRENT_LEVEL] = SELF
-    msg = "This bot is made by Daniele Di Francesco for the IOT course in PoliMi"
+    msg = "This bot is made by Daniele Di Francesco for the IOT course @PoliMi"
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
@@ -341,23 +327,6 @@ async def end_second_level(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     return END
 
-async def end_describing(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """End gathering of features and return to parent conversation."""
-    user_data = context.user_data
-    level = user_data[CURRENT_LEVEL]
-    if not user_data.get(level):
-        user_data[level] = []
-    user_data[level].append(user_data[FEATURES])
-
-    # Print upper level menu
-    if level == SELF:
-        user_data[START_OVER] = True
-        await start(update, context)
-    else:
-        await select_pot(update, context)
-
-    return END
-
 async def stop_nested(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Completely end conversation from within nested conversation."""
     await update.message.reply_text("Okay, bye.")
@@ -429,6 +398,12 @@ def main() -> None:
             STOPPING: [CommandHandler("start", start)],
         },
         fallbacks=[CommandHandler("stop", stop)],
+        map_to_parent={
+            # Return to top level menu
+            END: SELECTING_LEVEL,
+            # End conversation altogether
+            STOPPING: END,
+        },
     )
 
     application.add_handler(conv_handler)
