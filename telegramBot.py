@@ -323,7 +323,7 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         p.lastWater = datetime.datetime.now()
         time.sleep(0.5)
 
-    for i in range(1,3)
+    for i in range(1,3):
         mqttPublish(i)
 
     text += "\n...\n...\ndone"
