@@ -9,10 +9,7 @@ import logging
 import Models
 from ssl import PROTOCOL_TLSv1_1
 from typing import Any, Dict, Tuple
-
 from telegram import __version__ as TG_VER
-
-from old.telegramBot_old import mqttPublish
 
 try:
     from telegram import __version_info__
@@ -381,6 +378,7 @@ def mqttPublish(n):
     except Exception as e:
         print (e)
 
+## Main
 def main() -> None:
     """Run the bot."""
     # Create the Application and pass it your bot's token.
