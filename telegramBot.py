@@ -66,7 +66,7 @@ pot3 = Models.Pot(5)
 pots = [ pot1, pot2, pot3 ]
 
 # Water time (seconds)
-WATER_TIME = 5 
+WATER_TIME = 10 
 
 # ThingSpeak Channel connection
 channel_ID = "1806671"
@@ -244,7 +244,7 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer(timeout=500)
+    await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
     #GPIO.output(pot1.pin,0) #Open the valve
@@ -306,26 +306,33 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer(timeout=100)
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    try:
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    for p in pots:
-        #GPIO.output(p.pin,0)
-        time.sleep(0.5) # I don't want the valves to open simultaneously
+        for p in pots:
+            #GPIO.output(p.pin,0)
+            time.sleep(0.5) # I don't want the valves to open simultaneously
         
-    time.sleep(WATER_TIME)
-    for p in pots:
-        GPIO.output(p.pin,1)
-        p.lastWater = datetime.datetime.now()
-        time.sleep(0.5)
+        time.sleep(WATER_TIME)
 
-    for i in range(1,4):
-        mqttPublish(i)
+        for p in pots:
+            GPIO.output(p.pin,1)
+            p.lastWater = datetime.datetime.now()
+            time.sleep(0.5)
 
-    text += "\n...\n...\ndone"
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+        for i in range(1,4):
+            mqttPublish(i)
 
-    return EVERY
+        text += "\n...\n...\ndone"
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+        return EVERY
+
+    except Exception as exp:
+        if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
+            logger.info('Query is too old and response timeout expired or query id is invalid')
+            # ignoring this error:
+            return
 
 async def end_second_level(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Return to top level conversation."""
