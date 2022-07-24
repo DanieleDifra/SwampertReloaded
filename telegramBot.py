@@ -66,7 +66,7 @@ pot3 = Models.Pot(5)
 pots = [ pot1, pot2, pot3 ]
 
 # Water time (seconds)
-WATER_TIME = 1 
+WATER_TIME = 5 
 
 # ThingSpeak Channel connection
 channel_ID = "1806671"
@@ -244,7 +244,7 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer()
+    await update.callback_query.answer(timeout=500)
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
     #GPIO.output(pot1.pin,0) #Open the valve
@@ -254,7 +254,6 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     mqttPublish(1)
 
     text += "\n...\n... done"
-    await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
     return POT1
@@ -307,7 +306,7 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer()
+    await update.callback_query.answer(timeout=100)
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
     for p in pots:
@@ -320,11 +319,10 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         p.lastWater = datetime.datetime.now()
         time.sleep(0.5)
 
-    for i in range(1,3):
+    for i in range(1,4):
         mqttPublish(i)
 
     text += "\n...\n...\ndone"
-    await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
     return EVERY
