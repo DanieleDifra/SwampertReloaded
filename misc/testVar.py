@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
+import os
+
 load_dotenv()
 
-tg_token = TELEGRAMTOKEN
-print(TELEGRAMTOKEN)
+tg_token = os.getenv("TELEGRAMTOKEN")
+print(tg_token)
