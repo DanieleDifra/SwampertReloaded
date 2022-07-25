@@ -4,6 +4,7 @@
 
 ## Dependencies
 from dotenv import load_dotenv
+import os
 import datetime
 import time
 import logging
@@ -37,11 +38,12 @@ import paho.mqtt.publish as publish
 import RPi.GPIO as GPIO
 
 ## Variables declaration
-load_dotenv()
+#dotenv load
+path='/home/swampi/SwampertReloaded/var.env'
+load_dotenv(dotenv_path=path,verbose=True)
 # AccuWeather API connection
-accuKey = "GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
-cityKey = "214046"
-print (TELEGRAMTOKEN)
+accuKey = os.getenv("ACCUKEY")
+cityKey = os.getenv("CITYKEY")
 # Raspberry Pi setup
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
@@ -67,9 +69,9 @@ WATER_TIME = 10
 # ThingSpeak Channel connection
 channel_ID = "1806671"
 mqtt_host = "mqtt3.thingspeak.com"
-mqtt_client_ID = "ITgGHjUoFwwZEDIUPCgIJS8"
-mqtt_username  = "ITgGHjUoFwwZEDIUPCgIJS8"
-mqtt_password  = "51bdD9cJODXzePgbKtaNFKQk"
+mqtt_client_ID = os.getenv("MQTTCLIENTID")
+mqtt_username  = os.getenv("MQTTUSER")
+mqtt_password  = os.getenv("MQTTPASS")
 t_transport = "websockets"
 t_port = 80
 topic = "channels/" + channel_ID + "/publish"
@@ -365,7 +367,8 @@ def mqttPublish(n):
 def main() -> None:
     """Run the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("5434499546:AAE6TfxPDbKsX4ajVIFFcqWQUmIf3RpOt4Q").build()
+    tgToken = os.getenv("TGTOKEN")
+    application = Application.builder().token(tgToken).build()
 
     # Set up second level ConversationHandler (adding a person)
     pot_conv = ConversationHandler(
