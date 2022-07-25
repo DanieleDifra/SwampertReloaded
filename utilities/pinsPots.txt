@@ -1,0 +1,10 @@
+
+   17    27    22    23   24
+|-----|-----|-----|-----|-----|
+                              |
+                              | 5
+                              |
+                              |
+
+25 -> scollegato o vaso a terra
+6 -> tubo per svuotare tanica

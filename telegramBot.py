@@ -133,6 +133,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await update.message.reply_text(text=text, reply_markup=keyboard)
 
     context.user_data[START_OVER] = False
+    logging.info("Started interaction")
     return SELECTING_ACTION
 
 
@@ -149,6 +150,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.edit_message_text(text=msg, reply_markup=keyboard)
     user_data[START_OVER] = True
 
+    logging.info("Pressed info button")
     return INFO
 
 
@@ -170,6 +172,7 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.edit_message_text(text=msg, reply_markup=keyboard)
     user_data[START_OVER] = True
 
+    logging.info("Pressed weather button")
     return WEATHER
 
 
@@ -236,6 +239,7 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     text += "\n...\n... done"
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
+    logging.info("Watered pot 1")
     return POT1
 
 async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
@@ -257,6 +261,7 @@ async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
+    logging.info("Watered pot 2")
     return POT2
 
 async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
@@ -278,6 +283,7 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
+    logging.info("Watered pot 3")
     return POT3
 
 async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
@@ -306,6 +312,8 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
         text += "\n...\n...\ndone"
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+
+        logging.info("Watered every pot")
         return EVERY
 
     except Exception as exp:
@@ -313,6 +321,7 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             logger.info('Query is too old and response timeout expired or query id is invalid')
             # ignoring this error:
             return
+        logging.error("Error while watering every pot (not old query error)")
 
 async def end_second_level(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Return to top level conversation."""
@@ -333,8 +342,10 @@ def getWeather():
     response = requests.get(weather_url)
     if response.status_code == 200:
        json_response = json.loads(response.text)
+       logging.info("weatherUrl: " + weather_url + " - Response: " + response.text)
        return json_response
     else:
+       logging.error("Error while accessing weather API")
        return exception
 
 ## MQTT publish to ThingSpeak
@@ -343,8 +354,10 @@ def mqttPublish(n):
     try:
         print ("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
         publish.single(topic, payload, hostname=mqtt_host, transport=t_transport, port=t_port, client_id=mqtt_client_ID, auth={'username':mqtt_username,'password':mqtt_password})
+        logging.info("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
     except Exception as e:
         print (e)
+        logging.error(e)
 
 ## Main
 def main() -> None:
