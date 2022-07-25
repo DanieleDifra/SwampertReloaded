@@ -3,6 +3,7 @@
 # By Daniele Di Francesco for IOT project @PoliMi
 
 ## Dependencies
+from dotenv import load_dotenv
 import datetime
 import time
 import logging
@@ -36,10 +37,11 @@ import paho.mqtt.publish as publish
 import RPi.GPIO as GPIO
 
 ## Variables declaration
+load_dotenv()
 # AccuWeather API connection
 accuKey = "GoxexX06khkOOTkiUFNfFB0Lh0tnAo1x"
 cityKey = "214046"
-
+print (TELEGRAMTOKEN)
 # Raspberry Pi setup
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
