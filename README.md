@@ -15,6 +15,8 @@ ssh -Y swampi@192.168.1.230
 
 Nothing should be actually done, the functioning of the telegramBot is granted by its starting script `runScript.sh`
 
+Logs and graphs about the system can be found [here](https://thingspeak.com/channels/1806671)
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
