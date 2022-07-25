@@ -234,7 +234,7 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    #GPIO.output(pot1.pin,0) #Open the valve
+    GPIO.output(pot1.pin,0) #Open the valve
     time.sleep(WATER_TIME)
     GPIO.output(pot1.pin,1) #Close the valve
     pot1.lastWater = datetime.datetime.now()
@@ -255,7 +255,7 @@ async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    #GPIO.output(pot2.pin,0) #Open the valve
+    GPIO.output(pot2.pin,0) #Open the valve
     time.sleep(WATER_TIME)
     GPIO.output(pot2.pin,1) #Close the valve
     pot2.lastWater = datetime.datetime.now()
@@ -277,7 +277,7 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    #GPIO.output(pot3.pin,0) #Open the valve
+    GPIO.output(pot3.pin,0) #Open the valve
     time.sleep(WATER_TIME)
     GPIO.output(pot3.pin,1) #Close the valve
     pot3.lastWater = datetime.datetime.now()
