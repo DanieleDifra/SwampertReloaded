@@ -1,4 +1,4 @@
 /var.env
 /botLogs.txt
-/misc
-/old
+/misc/*
+/old/*
