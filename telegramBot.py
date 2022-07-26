@@ -305,7 +305,6 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
         logging.info("Watered pot 3")
         return POT3
-
     except Exception as exp:
         if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
             logger.info('Query is too old and response timeout expired or query id is invalid')
@@ -389,61 +388,70 @@ def mqttPublish(n):
 ## Main
 def main() -> None:
     """Run the bot."""
-    # Create the Application and pass it your bot's token.
-    tgToken = os.getenv("TGTOKEN")
-    application = Application.builder().token(tgToken).build()
 
-    # Set up second level ConversationHandler (adding a person)
-    pot_conv = ConversationHandler(
-        entry_points=[CallbackQueryHandler(select_pot, pattern="^" + str(WATER_POTS) + "$")],
-        states={
-            SELECTING_LEVEL: [
-                CallbackQueryHandler(water1, pattern="^" + str(POT1) + "$"),
-                CallbackQueryHandler(water2, pattern="^" + str(POT2) + "$"),
-                CallbackQueryHandler(water3, pattern="^" + str(POT3) + "$"),
-                CallbackQueryHandler(waterAll, pattern="^" + str(EVERY) + "$"),
-            ]
-        },
-        fallbacks=[
-            CallbackQueryHandler(end_second_level, pattern="^" + str(END) + "$"),
-            CommandHandler("stop", stop_nested),
-        ],
-        map_to_parent={
-            # Return to top level menu
-            END: SELECTING_ACTION,
-            # End conversation altogether
-            STOPPING: END,
-        },
-    )
+    try:
+        # Create the Application and pass it your bot's token.
+        tgToken = os.getenv("TGTOKEN")
+        application = Application.builder().token(tgToken).build()
 
-    # Set up top level ConversationHandler (selecting action)
-    selection_handlers = [
-        pot_conv,
-        CallbackQueryHandler(info, pattern="^" + str(INFO) + "$"),
-        CallbackQueryHandler(weather, pattern="^" + str(WEATHER) + "$"),
-        CallbackQueryHandler(end, pattern="^" + str(END) + "$")
-    ]
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
-        states={
-            INFO: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
-            WEATHER: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
-            SELECTING_ACTION: selection_handlers,
-            SELECTING_LEVEL: selection_handlers,
-            STOPPING: [CommandHandler("start", start)],
-        },
-        fallbacks=[CommandHandler("stop", stop)],
-        map_to_parent={
-            # Return to top level menu
-            END: SELECTING_LEVEL,
-            # End conversation altogether
-            STOPPING: END,
-        },
-    )
-    application.add_handler(conv_handler)
+        # Set up second level ConversationHandler (adding a person)
+        pot_conv = ConversationHandler(
+            entry_points=[CallbackQueryHandler(select_pot, pattern="^" + str(WATER_POTS) + "$")],
+            states={
+                SELECTING_LEVEL: [
+                    CallbackQueryHandler(water1, pattern="^" + str(POT1) + "$"),
+                    CallbackQueryHandler(water2, pattern="^" + str(POT2) + "$"),
+                    CallbackQueryHandler(water3, pattern="^" + str(POT3) + "$"),
+                    CallbackQueryHandler(waterAll, pattern="^" + str(EVERY) + "$"),
+                ]
+            },
+            fallbacks=[
+                CallbackQueryHandler(end_second_level, pattern="^" + str(END) + "$"),
+                CommandHandler("stop", stop_nested),
+            ],
+            map_to_parent={
+                # Return to top level menu
+                END: SELECTING_ACTION,
+                # End conversation altogether
+                STOPPING: END,
+            },
+        )
 
-    # Run the bot until the user presses Ctrl-C
-    application.run_polling()
+        # Set up top level ConversationHandler (selecting action)
+        selection_handlers = [
+            pot_conv,
+            CallbackQueryHandler(info, pattern="^" + str(INFO) + "$"),
+            CallbackQueryHandler(weather, pattern="^" + str(WEATHER) + "$"),
+            CallbackQueryHandler(end, pattern="^" + str(END) + "$")
+        ]
+        conv_handler = ConversationHandler(
+            entry_points=[CommandHandler("start", start)],
+            states={
+                INFO: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
+                WEATHER: [CallbackQueryHandler(start, pattern="^" + str(END) + "$")],
+                SELECTING_ACTION: selection_handlers,
+                SELECTING_LEVEL: selection_handlers,
+                STOPPING: [CommandHandler("start", start)],
+            },
+            fallbacks=[CommandHandler("stop", stop)],
+            map_to_parent={
+                # Return to top level menu
+                END: SELECTING_LEVEL,
+                # End conversation altogether
+                STOPPING: END,
+            },
+        )
+        application.add_handler(conv_handler)
+
+        # Run the bot until the user presses Ctrl-C
+        application.run_polling()
+
+    except Exception as exp:
+        if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
+            logger.info('Query is too old and response timeout expired or query id is invalid')
+            # ignoring this error:
+            return
+        logging.error("Error while watering every pot (not old query error)")
 
 if __name__ == "__main__":
     main()
