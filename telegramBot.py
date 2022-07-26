@@ -252,7 +252,7 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             logger.info('Query is too old and response timeout expired or query id is invalid')
             # ignoring this error:
             return
-        logging.error("Error while watering every pot (not old query error)")
+        #logging.error("Error while watering every pot (not old query error)")
 
 async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot2"""
@@ -281,7 +281,7 @@ async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             logger.info('Query is too old and response timeout expired or query id is invalid')
             # ignoring this error:
             return
-        logging.error("Error while watering every pot (not old query error)")
+        #logging.error("Error while watering every pot (not old query error)")
 
 async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot3"""
@@ -310,7 +310,7 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             logger.info('Query is too old and response timeout expired or query id is invalid')
             # ignoring this error:
             return
-        logging.error("Error while watering every pot (not old query error)")
+        #logging.error("Error while watering every pot (not old query error)")
 
 async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water every pot"""
@@ -347,7 +347,7 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             logger.info('Query is too old and response timeout expired or query id is invalid')
             # ignoring this error:
             return
-        logging.error("Error while watering every pot (not old query error)")
+        #logging.error("Error while watering every pot (not old query error)")
 
 async def end_second_level(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Return to top level conversation."""
@@ -366,13 +366,20 @@ async def stop_nested(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str
 def getWeather():
     weather_url = "http://dataservice.accuweather.com/currentconditions/v1/"+cityKey+"?apikey="+accuKey
     response = requests.get(weather_url)
-    if response.status_code == 200:
-       json_response = json.loads(response.text)
-       logging.info("weatherUrl: " + weather_url + " - Response: " + response.text)
-       return json_response
-    else:
-       logging.error("Error while accessing weather API")
-       return exception
+    try:
+        if response.status_code == 200:
+            json_response = json.loads(response.text)
+            logging.info("weatherUrl: " + weather_url + " - Response: " + response.text)
+            return json_response
+        else:
+            logging.error("Error while accessing weather API")
+            return exception
+    except Exception as exp:
+        if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
+            logger.info('Query is too old and response timeout expired or query id is invalid')
+            # ignoring this error:
+            return
+        #logging.error("Error while watering every pot (not old query error)")
 
 ## MQTT publish to ThingSpeak
 def mqttPublish(n):
@@ -381,9 +388,14 @@ def mqttPublish(n):
         print ("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
         publish.single(topic, payload, hostname=mqtt_host, transport=t_transport, port=t_port, client_id=mqtt_client_ID, auth={'username':mqtt_username,'password':mqtt_password})
         logging.info("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
-    except Exception as e:
-        print (e)
-        logging.error(e)
+    except Exception as exp:
+        if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
+            logger.info('Query is too old and response timeout expired or query id is invalid')
+            # ignoring this error:
+            return
+        #logging.error("Error while watering every pot (not old query error)")
+        print (exp)
+        #logging.error(exp)
 
 ## Main
 def main() -> None:
@@ -451,7 +463,7 @@ def main() -> None:
             logger.info('Query is too old and response timeout expired or query id is invalid')
             # ignoring this error:
             return
-        logging.error("Error while watering every pot (not old query error)")
+        #logging.error("Error while watering every pot (not old query error)")
 
 if __name__ == "__main__":
     main()
