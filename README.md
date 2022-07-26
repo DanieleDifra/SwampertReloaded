@@ -13,7 +13,7 @@ SSH can be used to access the Raspberry
 ssh -Y swampi@192.168.1.230
 ```
 
-Nothing should be actually done, the functioning of the telegramBot is granted by its starting script `runScript.sh`
+Nothing should be actually done, the functioning of the telegramBot is granted by its starting script `runScript.sh` This script is going to be launched as a startup script from `/etc/profile`
 
 Logs and graphs about the system can be found [here](https://thingspeak.com/channels/1806671)
 
