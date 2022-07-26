@@ -64,7 +64,7 @@ pot3 = Models.Pot(5)
 pots = [ pot1, pot2, pot3 ]
 
 # Water time (seconds)
-WATER_TIME = 10 
+WATER_TIME = 30 
 
 # ThingSpeak Channel connection
 channel_ID = "1806671"
@@ -231,20 +231,28 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    try: 
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    GPIO.output(pot1.pin,0) #Open the valve
-    time.sleep(WATER_TIME)
-    GPIO.output(pot1.pin,1) #Close the valve
-    pot1.lastWater = datetime.datetime.now()
-    mqttPublish(1)
+        GPIO.output(pot1.pin,0) #Open the valve
+        time.sleep(WATER_TIME)
+        GPIO.output(pot1.pin,1) #Close the valve
+        pot1.lastWater = datetime.datetime.now()
+        mqttPublish(1)
 
-    text += "\n...\n... done"
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+        text += "\n...\n...\ndone"
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
-    logging.info("Watered pot 1")
-    return POT1
+        logging.info("Watered pot 1")
+        return POT1
+
+    except Exception as exp:
+        if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
+            logger.info('Query is too old and response timeout expired or query id is invalid')
+            # ignoring this error:
+            return
+        logging.error("Error while watering every pot (not old query error)")
 
 async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot2"""
@@ -252,21 +260,28 @@ async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    try:
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    GPIO.output(pot2.pin,0) #Open the valve
-    time.sleep(WATER_TIME)
-    GPIO.output(pot2.pin,1) #Close the valve
-    pot2.lastWater = datetime.datetime.now()
-    mqttPublish(2)
+        GPIO.output(pot2.pin,0) #Open the valve
+        time.sleep(WATER_TIME)
+        GPIO.output(pot2.pin,1) #Close the valve
+        pot2.lastWater = datetime.datetime.now()
+        mqttPublish(2)
 
-    text += "\n...\n...\ndone"
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+        text += "\n...\n...\ndone"
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
-    logging.info("Watered pot 2")
-    return POT2
+        logging.info("Watered pot 2")
+        return POT2
+    except Exception as exp:
+        if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
+            logger.info('Query is too old and response timeout expired or query id is invalid')
+            # ignoring this error:
+            return
+        logging.error("Error while watering every pot (not old query error)")
 
 async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water pot3"""
@@ -274,21 +289,29 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [[   InlineKeyboardButton(text="Back", callback_data=str(END))]]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+    try:
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
-    GPIO.output(pot3.pin,0) #Open the valve
-    time.sleep(WATER_TIME)
-    GPIO.output(pot3.pin,1) #Close the valve
-    pot3.lastWater = datetime.datetime.now()
-    mqttPublish(3)
+        GPIO.output(pot3.pin,0) #Open the valve
+        time.sleep(WATER_TIME)
+        GPIO.output(pot3.pin,1) #Close the valve
+        pot3.lastWater = datetime.datetime.now()
+        mqttPublish(3)
 
-    text += "\n...\n...\ndone"
-    await update.callback_query.answer()
-    await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
+        text += "\n...\n...\ndone"
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
-    logging.info("Watered pot 3")
-    return POT3
+        logging.info("Watered pot 3")
+        return POT3
+
+    except Exception as exp:
+        if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
+            logger.info('Query is too old and response timeout expired or query id is invalid')
+            # ignoring this error:
+            return
+        logging.error("Error while watering every pot (not old query error)")
 
 async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Water every pot"""
