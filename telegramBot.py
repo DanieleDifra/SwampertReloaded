@@ -234,7 +234,8 @@ async def water1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     try: 
         await update.callback_query.answer()
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
-    
+
+        logging.info("Watering pot1")
         GPIO.output(pot1.pin,0) #Open the valve
         time.sleep(WATER_TIME)
         GPIO.output(pot1.pin,1) #Close the valve
@@ -264,6 +265,7 @@ async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await update.callback_query.answer()
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
+        logging.info("Watering pot1")
         GPIO.output(pot2.pin,0) #Open the valve
         time.sleep(WATER_TIME)
         GPIO.output(pot2.pin,1) #Close the valve
@@ -274,7 +276,7 @@ async def water2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await update.callback_query.answer()
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
 
-        logging.info("Watered pot 2")
+        logging.info("Watered pot2")
         return POT2
     except Exception as exp:
         if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
@@ -293,6 +295,7 @@ async def water3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await update.callback_query.answer()
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
+        logging.info("Watering pot3")
         GPIO.output(pot3.pin,0) #Open the valve
         time.sleep(WATER_TIME)
         GPIO.output(pot3.pin,1) #Close the valve
@@ -322,8 +325,9 @@ async def waterAll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await update.callback_query.answer()
         await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     
+        logging.info("Watering every pot")
         for p in pots:
-            #GPIO.output(p.pin,0)
+            GPIO.output(p.pin,0)
             time.sleep(0.5) # I don't want the valves to open simultaneously
         
         time.sleep(WATER_TIME)
@@ -385,17 +389,16 @@ def getWeather():
 def mqttPublish(n):
     payload = "field" + str(n) + "=0.5"
     try:
-        print ("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
+        # print ("Writing Payload = " + payload," to host: " + mqtt_host + " clientID= " + mqtt_client_ID + " User " + mqtt_username +  " PWD " + mqtt_password)
         publish.single(topic, payload, hostname=mqtt_host, transport=t_transport, port=t_port, client_id=mqtt_client_ID, auth={'username':mqtt_username,'password':mqtt_password})
-        logging.info("Writing Payload = ", payload," to host: ", mqtt_host, " clientID= ", mqtt_client_ID, " User ", mqtt_username, " PWD ", mqtt_password)
+        logging.info("Writing Payload = " + payload + " to host: " +  mqtt_host + " clientID= " + mqtt_client_ID + " User " + mqtt_username + " PWD " + mqtt_password)
     except Exception as exp:
         if str(exp) == 'Query is too old and response timeout expired or query id is invalid':
             logger.info('Query is too old and response timeout expired or query id is invalid')
             # ignoring this error:
             return
-        #logging.error("Error while watering every pot (not old query error)")
-        print (exp)
-        #logging.error(exp)
+        #print (exp)
+        logging.error(exp)
 
 ## Main
 def main() -> None:
