@@ -64,7 +64,7 @@ pot3 = Models.Pot(5)
 pots = [ pot1, pot2, pot3 ]
 
 # Water time (seconds)
-WATER_TIME = 4 
+WATER_TIME = 10 
 
 # ThingSpeak Channel connection
 channel_ID = "1806671"
