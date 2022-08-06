@@ -64,7 +64,7 @@ pot3 = Models.Pot(5)
 pots = [ pot1, pot2, pot3 ]
 
 # Water time (seconds)
-WATER_TIME = 5 
+WATER_TIME = 10 
 
 # ThingSpeak Channel connection
 channel_ID = "1806671"
@@ -78,8 +78,7 @@ topic = "channels/" + channel_ID + "/publish"
 
 ## Telegram code
 # Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+logging.basicConfig(filename='botLog.log', format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 

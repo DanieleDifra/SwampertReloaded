@@ -8,13 +8,19 @@ import sys
 import random
 import telepot
 import json
+from dotenv import load_dotenv
+import os
+
+## Loading dotEnv
+path='/home/swampi/SwampertReloaded/var.env'
+load_dotenv(dotenv_path=path,verbose=True)
 
 ## ThingSpeak Channel connection
 channel_ID = "1806671"
 mqtt_host = "mqtt3.thingspeak.com"
-mqtt_client_ID = "ITgGHjUoFwwZEDIUPCgIJS8"
-mqtt_username  = "ITgGHjUoFwwZEDIUPCgIJS8"
-mqtt_password  = "51bdD9cJODXzePgbKtaNFKQk"
+mqtt_client_ID = os.getenv("MQTTCLIENTID")
+mqtt_username  = os.getenv("MQTTUSER")
+mqtt_password  = os.getenv("MQTTPASS")
 t_transport = "websockets"
 t_port = 80
 topic = "channels/" + channel_ID + "/publish"
